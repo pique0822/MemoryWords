@@ -1,27 +1,33 @@
-class Card{
-	constuctor(wordEnglish,wordSpanish,visual){
-		this.english = wordEnglish;
-		this.spanish = wordSpanish;
+var Card = function(id,word,visual){
+		this.id = id;
+		this.word = word;
 		this.visual = visual;
-		this.background = '~/imgs/hoyleback.jpg'
+		this.background = 'imgs/hoyleback.jpg'
 		this.faceDown = true;
+		this.paired = false;
+
+	this.getId = function(){
+		return this.id;
 	}
-	get visual(){
+	this.getVisual = function(){
 		return this.visual;
 	}
-	get english_word(){
-		return this.english;
+	this.getWord = function(){
+		return this.word;
 	}
-	get spanish_word(){
-		return this.spanish;
-	}
-	get background(){
+	this.getBackground = function(){
 		return this.background;
 	}
-	get faceDown(){
+	this.isFaceDown = function(){
 		return this.faceDown;
 	}
-	flip (){
+	this.flip = function(){
 		this.faceDown = !this.faceDown;
+	}
+	this.isMatched = function(){
+		return this.paired;
+	}
+	this.matchFound = function(){
+		this.paired = true;
 	}
 }

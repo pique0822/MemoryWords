@@ -1,10 +1,131 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<title>wat da faq</title>
+		<link rel="stylesheet" href=
+		  "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.css">
+		<link rel="stylesheet" href="main.css">
+		<script src=
+			"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="Card.js"></script>
+		<script src="Pairs.js"></script>
+		<script src="Memory.js"></script>
 	</head>
 	<body>
-		Hello there
 		<div class='container'>
-			
+			<div width=500 height=50 id="memoryBoard"></div>
 		</div>
+		<script>
+		var DATA1 = ["apple","manzana","baby","bebé","back","espalda","ball","pelota",
+								"bear","oso","bed","cama","bell","campana","bird","pájaro",
+								"birthday","cumpleaños","boat","barco","box","caja","boy","niño",
+								"bread","pan","brother","hermano","cake","pastel","car","coche"]
+		var DATA2 = ["cat","gato","chair","silla","chicken","pollo","children","niños",
+								"Christmas","Navidad","coat","abrigo","corn","maíz","cow","vaca",
+								"day","día","dog","perro","doll","muñeca","door","puerta",
+								"duck","pato","egg","huevo","eye","ojo","farm","granja",
+								"farmer","granjero","father","padre","feet","pies"]
+		var pairs = []
+		for(var i = 0; i<DATA1.length; i+=2)
+		{
+			var image = "imgs/"+DATA1[i]+".png"
+			pairs.push(new Pair(i/2,DATA1[i],DATA1[i+1],image))
+		}
+
+		var RATIO = 1.47;
+		var CARDS_AT_PLAY = pairs.length;
+		var BOARD_WIDTH = 500;
+		var memory = new Memory(pairs);
+		var CARD_WIDTH = Math.floor((.9*BOARD_WIDTH)/memory.getWidth());
+		var SPACING = .01*CARD_WIDTH;
+		var flips = 0;
+		var openCards = [];
+
+		var board = '#memoryBoard';
+			var init = function(){
+				drawBoard();
+			}
+			var drawBoard = function(){
+				$(board).html("")
+				for (var row = 0; row<memory.getWidth(); row++){
+					for (var col = 0; col<memory.getHeight(); col++){
+						var card = memory.getCard(row,col);
+
+						var img = new Image();
+						img.src = memory.getImage(row,col);
+
+						$(img).attr({
+							id: card.getId()
+						});
+						$(img).css({
+							width: CARD_WIDTH,
+							'z-index': 1,
+							position: 'absolute',
+						});
+
+						var left =  col*(CARD_WIDTH+SPACING);
+						var top = row*(CARD_WIDTH*RATIO+SPACING);
+						$(img).offset({
+							top: top,
+							left: left
+						});
+
+						var text = "<div></div>"
+						$(text).offset({
+							top: top,
+							left: left
+						});
+						$(text).css({
+							'z-index':0
+						});
+						$(text).html(card.getWord());
+
+						if(memory.isCardMatched(row,col)){
+							$(img).hide()
+						}
+						if(card.isFaceDown()){
+							$(text).hide()
+						}
+						$(board).append(img)
+					}
+				}
+			}
+			$(document).on('click',board,function(evt){
+				var row = findRowFromClick(evt.pageY);
+				var col = findColFromClick(evt.pageX);
+
+				if(memory.isFaceDown(row,col)){
+					memory.flipCard(row,col);
+					openCards.push(row);
+					openCards.push(col);
+					flips++;
+					if(flips%2 == 0){
+						drawBoard();
+						memory.cardsMatch(openCards[0],openCards[1],openCards[2],openCards[3])
+						$(board).css({ "pointer-events":"none"});
+						setTimeout(function () {
+							memory.flipAll();
+							openCards = []
+		        	drawBoard();
+							$(board).css({ "pointer-events":"auto"});
+		    		}, 750);
+					}
+					else{
+						drawBoard();
+					}
+				}
+			});
+			var findColFromClick = function(x){
+				var pos = $(board).offset();
+				var col = Math.floor(Math.abs(x- pos.left)/(CARD_WIDTH+SPACING/2));
+				return col;
+			}
+			var findRowFromClick = function(y){
+				var pos = $(board).offset();
+				var row = Math.floor(Math.abs(y- pos.top)/(CARD_WIDTH*RATIO+SPACING/2));
+				return row;
+			}
+			$(document).ready(init());
+		</script>
 	</body>
 </html>
